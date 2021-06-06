@@ -1,0 +1,257 @@
+{
+	"info": {
+		"_postman_id": "de6e41e1-edc9-486a-bd8e-bb3ec749b0b5",
+		"name": "BUSINESS SEARCH",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "VERSION",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://18.218.36.147/db/",
+					"protocol": "http",
+					"host": [
+						"18",
+						"218",
+						"36",
+						"147"
+					],
+					"path": [
+						"db",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "COUNTRY LIST",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://18.218.36.147/db/country",
+					"protocol": "http",
+					"host": [
+						"18",
+						"218",
+						"36",
+						"147"
+					],
+					"path": [
+						"db",
+						"country"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "LIST GROUPS",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://18.218.36.147/db/listgroups",
+					"protocol": "http",
+					"host": [
+						"18",
+						"218",
+						"36",
+						"147"
+					],
+					"path": [
+						"db",
+						"listgroups"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "COUNTRY GROUP",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/group?country_group=EPEC",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"group"
+					],
+					"query": [
+						{
+							"key": "country_group",
+							"value": "EPEC"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SEARCH",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"search_type\": \"keyword\",\r\n    \"keyword\": \"Manager\",\r\n    \"country\": [],\r\n    \"state\": \"Victoria\",\r\n    \"city\": \"Melbourne\",\r\n    \"employee\": null,\r\n    \"score\": 60\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://18.218.36.147/db/search?limit=25&page=2",
+					"protocol": "http",
+					"host": [
+						"18",
+						"218",
+						"36",
+						"147"
+					],
+					"path": [
+						"db",
+						"search"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "25"
+						},
+						{
+							"key": "page",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "LIST STATES",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"country\": [\"India\"]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://18.218.36.147/db/states",
+					"protocol": "http",
+					"host": [
+						"18",
+						"218",
+						"36",
+						"147"
+					],
+					"path": [
+						"db",
+						"states"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CITY LIST",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://18.218.36.147/db/cities?state=Karnataka",
+					"protocol": "http",
+					"host": [
+						"18",
+						"218",
+						"36",
+						"147"
+					],
+					"path": [
+						"db",
+						"cities"
+					],
+					"query": [
+						{
+							"key": "state",
+							"value": "Karnataka"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POPULAR KEYWORDS",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://18.218.36.147/db/keywords",
+					"protocol": "http",
+					"host": [
+						"18",
+						"218",
+						"36",
+						"147"
+					],
+					"path": [
+						"db",
+						"keywords"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POPULAR SEARCH",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://18.218.36.147/db/popular?search_type=job&keyword=Manager",
+					"protocol": "http",
+					"host": [
+						"18",
+						"218",
+						"36",
+						"147"
+					],
+					"path": [
+						"db",
+						"popular"
+					],
+					"query": [
+						{
+							"key": "search_type",
+							"value": "job"
+						},
+						{
+							"key": "keyword",
+							"value": "Manager"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

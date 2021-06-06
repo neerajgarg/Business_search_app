@@ -1,0 +1,1 @@
+mongodb+srv://Api_Admin:DbApi_admin@cluster0.idnak.mongodb.net/?retryWrites=true&w=majority
