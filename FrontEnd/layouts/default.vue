@@ -1242,8 +1242,15 @@
   .multiselect__option{
     min-height: 44px;
   }
-  .multiselect__placeholder {
+  
+  .country .multiselect__placeholder {
     padding: 0 0 0 32px !important;
+    font-size: 16px !important;
+    color: #495057 !important;
+    margin-bottom: 8px !important;
+  }
+  .multiselect__placeholder {
+    /* padding: 0 0 0 32px !important; */
     font-size: 16px !important;
     color: #495057 !important;
     margin-bottom: 8px !important;
