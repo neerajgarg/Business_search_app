@@ -12,11 +12,11 @@
                   {{ company.company_name }}
                 </p>
               </div>
-              <div class="float-right" :class="company.score < 31 ? 'score-red': company.score > 30 && company.score < 51 ? 'score-yellow' : 'score'" >
+              <!-- <div class="float-right" :class="company.score < 31 ? 'score-red': company.score > 30 && company.score < 51 ? 'score-yellow' : 'score'" >
                 <div class="" :class="company.score < 31 ? 'score-red': company.score > 30 && company.score < 51 ? 'score-yellow' : 'score'" >
                   {{ company.score }}
                 </div>
-              </div>
+              </div> -->
             </div>
             <div class="custom-card-content text-left">
                 <div class="mb-3 employee-title-section">

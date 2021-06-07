@@ -24,12 +24,13 @@
 
               <div class="search-card">
                 <h3 class="card-title mb-4">Search Organisations</h3>
+
                 <!--Product being promoted  -->
                 <div class="input-group custom-input-group mb-3">
                  <multiselect v-model="product" :options="products"
-                    :multiple="true"
+                    :multiple="false"
                     :internal-search="false"
-                    :close-on-select="false"
+                    :close-on-select="true"
                     :clear-on-select="false"
                     :hideSelected="false"
                     :taggable="false"
@@ -68,7 +69,7 @@
                   <multiselect
                     v-model="category"
                     :options="categories"
-                    :multiple="true"
+                    :multiple="false"
                     :close-on-select="true"
                     :clear-on-select="false"
                     :hideSelected="false"
@@ -87,7 +88,7 @@
                     v-model="jobtitle"
                     @search-change="getJobTitles"
                     :options="jobtitles"
-                    :multiple="true"
+                    :multiple="false"
                     :close-on-select="true"
                     :clear-on-select="true"
                     :hideSelected="false"
@@ -104,7 +105,7 @@
                   </multiselect>
                 </div>
                 <!-- Country Selection -->
-                <div>
+                <div class="country">
                  <multiselect
                     v-model="country"
                     :options="countries"
@@ -141,12 +142,12 @@
 
                 <!--  Country  -->
                 <div class="country-buttons text-left my-4" >
-                  <a class="card-tab-btn" v-on:click="showCountry(selectedCountry)" 
-                  :class="selectedCountryGroup.includes(selectedCountry) ? 'active' : ''" 
-                  :key="index" v-for="selectedCountry, index in country_groups">{{selectedCountry}}</a>
+                  <a class="card-tab-btn" v-on:click="showCountry(selectedCountry)" :class="selectedCountryGroup == selectedCountry ? 'active' : ''" :key="index" v-for="selectedCountry, index in country_groups">{{selectedCountry}}</a>
                   <!-- <a class="card-tab-btn active">APAC</a> -->
-
                  <div id="show-city" class="show-city mt-3" v-if="isHidden == true">
+                      <!-- <div class="close-city">
+                          <a class="btn-dark " v-on:click="isHidden = false">x</a>
+                      </div> -->
                       <div class="city-list">
                           <a class="card-tab-btn " @click="removeCountry(city)" :key="index" v-for="city, index in countrylist">
                             {{city}} 
@@ -512,7 +513,8 @@
       async loadCountryGroups(){
           const res = await this.$axios.$get("/listgroups");
           if(res.status == "success"){
-            this.country_groups= res.Groups;
+            this.country_groups= res.data;
+            console.log(res.data);
           }
       },
       async loadCategories(){
@@ -1155,7 +1157,7 @@
   }
   .multiselect__option--selected{
     content: none;
-    background: olivedrab;
+    background: #EBCACA;
     
   }
 
@@ -1271,13 +1273,13 @@
   .multiselect--active .icon {
     transform: rotate(180deg);
   }
-  .search-card .multiselect::before{
+  .country .multiselect::before{
     content: "\F07D9";
     z-index: 1;
   }
-  /* .multiselect--active::after{
-    content: "\F0349";
-    background: #FFFFFF;
+   /* .search-card .multiselect::before{
+    content: "\F07D9";
+    z-index: 1;
   } */
   .multiselect::before,
   .multiselect--active::after{
