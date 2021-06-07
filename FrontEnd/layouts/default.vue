@@ -29,13 +29,13 @@
                 <div class="input-group custom-input-group mb-3">
                  <multiselect v-model="product" :options="products"
                     :multiple="false"
-                    :internal-search="false"
                     :close-on-select="true"
                     :clear-on-select="false"
                     :hideSelected="false"
                     :taggable="false"
                     placeholder="Product being promoted"
                     :preserve-search="true"
+                    :internal-search="false"
                     @search-change="asyncFindProducts" >
                     <template slot="selection" slot-scope="{ values }">
                       <span class="multiselect__single" v-if="values.length">{{values[0]}}</span>
@@ -62,8 +62,9 @@
                       <span class="mdi mdi-magnify"></span>
                     </span>
                   </div>
-                  <input type="text" class="form-control" placeholder="e.g Ux Designer" aria-label="Username" v-model="keyword" aria-describedby="basic-addon1">
+                  <input type="text" class="form-control" placeholder="e.g Ux Designer" aria-label="Username" v-model="keyword" aria-describedby="basic-addon1" required>
                 </div>
+
                 <!-- Category -->
                 <div class="input-group custom-input-group mb-3 mag-icon-search">
                   <multiselect
@@ -82,6 +83,7 @@
                     <span class="arrow" style="position: absolute; right: 0;margin:7px; font-size: 1.4rem;" slot="caret"><i class="mdi mdi-chevron-down"></i></span>
                   </multiselect>
                 </div>
+                <!-- asyncFindJobTitles -->
                 <!-- Job title -->
                 <div class="input-group custom-input-group mb-3 mag-icon-search">
                 <multiselect
@@ -94,7 +96,9 @@
                     :hideSelected="false"
                     :taggable="false"
                     placeholder="Job Title"
-                    :preserve-search="true" >
+                    :internal-search="false"
+                    :preserve-search="true"
+                     >
                     <template slot="selection" slot-scope="{ values, search, isOpen }">
                       <span class="multiselect__single" style="padding-left: 0px;" v-if="values.length">{{values[0]}}</span>
                     </template>
@@ -158,7 +162,8 @@
                 </div>
 
                 <!--  Search Button  -->
-                <button class="btn-search-lg text-white my-4" type="button" data-toggle="button" @click="search" :disabled="keyword.trim() == ''" title="Search">Search</button>
+                <!-- for disabling search if search filed is empty use :disabled="keyword.trim() == ''" -->
+                <button class="btn-search-lg text-white my-4" type="button" data-toggle="button" @click="search"  :disabled="keyword.trim() == ''" title="Search" >Search</button>
                 <!--  Popular Searches  -->
                 <!-- <div class="popular-search-section text-left"   v-if="keywords.length > 0">
                   <span class="popular-heading">Popular Searches: </span>
@@ -458,6 +463,15 @@
       updateScroll() {
         this.scrollPosition = window.scrollY;
       },
+      async asyncFindJobTitles(query){
+        var filter= []
+        await this.jobtitles.forEach(job=>{
+          if(job.toLowerCase().startsWith(query.toLowerCase())){
+            filter.push(job)
+          }
+        })
+        this.jobtitles=filter
+      },
       async asyncFindProducts(query){
         var filter= []
         await constants.PRODUCTS.forEach(product=>{
@@ -496,7 +510,7 @@
         if(this.jobSearchSlotText != "Searching.. Please Wait..."){
           this.jobSearchSlotText = "Continue Typing..."
         }
-        if(query.length == 4){
+        if(query.length >= 4){
           this.jobSearchSlotText = "Searching.. Please Wait..."
           let res = await this.$axios.$get("/jobtitle?query="+query);
           if(res.status == "success"){
@@ -610,11 +624,11 @@
       },
 
       async search() {
+        //intial search filter to retrive the companies from the backend
         this.isSearchDone = true;
-        this.isSearching = true;
-        // this.removeFromSearch();     
+        this.isSearching = true;  
         this.page = 1;
-
+        //search box parameters
          let params = {
           score: this.sliderVal,
           keyword: this.keyword,
@@ -623,14 +637,16 @@
           state:  this.state !== "All" ? this.state : "",
           city: this.city !== "All" ? this.city : "",
           employee: !this.employee.includes("Any") ? this.employee : "1-10000000",
+          category: this.category,
+          jobtitle: this.jobtitle,
         };
-
-       
-
+        console.log(params)
+        //post the parameters to /search api endpoint to retrive the filterd list of comapnies
         let url = "/search?limit="+this.rpp+"&page="+this.page
+        const res = await this.$axios.$post(url,  params );
 
-         const res = await this.$axios.$post(url,  params );
-      
+        // if we get the data succefully check number of companies to update the last_id var and 
+        //comapnies list to be filled with retrived data
         if (res.status == 'sucess') {
           if (res.data.length > 0) {
             this.last_id = res.data[res.data.length - 1].id;
@@ -638,50 +654,43 @@
           this.companies = res.data;
         }
 
-        params = {
+        //once the backend api response is recived user will be scrolled to a results
+        this.isSearching = false;
+        VueScrollTo.scrollTo("#results", 200, { offset: -50 });
+        
+        //popularResult list will be populated with according results of the keyword being searched
+         params = {
           keyword: this.keyword,
           search_type: this.type,
         };
-
-        this.isSearching = false;
-        VueScrollTo.scrollTo("#results", 200, { offset: -50 });
-
         const popularResult = await this.$axios.$get("/popular", { params });
-
-
+        //if successful popular list will be populated
         if (popularResult.status == 'sucess') {
           this.popular = popularResult.data;
         }
 
+        //if the user input for the country is any then the subfilter of state and city will be filled with all the available cities and states
         if (this.country == "any") {
           const states = await this.$axios.$post("/states");
-
           const cities = await this.$axios.$get("/cities"); 
-          console.log('asdf')
           this.states = states.data;
           this.cities = cities.data;
-        } else {
+        } 
+        //if user has particular country then that countries sates and cities will be populated
+        else {
           let params = { country: this.country };
- console.log('123')
            this.$axios.$post("/states",  params ).then((response)=>{
-              console.log('1233243225')
-              console.log(response)
               this.states = response.data;
           });
           const cities = await this.$axios.$get("/cities",  params );
-           console.log(states)
-         
           this.cities = cities.data;
         }
-
         this.hasEqualSize = res.data.length == this.rpp ? true : false;
       },
-
       async searchBySize() {
         this.isSearching = true;
         this.removeFromSearch();
         this.page = 1;
-
         let url = "/search?limit="+this.rpp+"&page="+this.page
         const res = await this.$axios.$post(url, 
            {
@@ -694,10 +703,9 @@
             state:  this.state !== "All" ? this.state : "",
             city: this.city !== "All" ? this.city : "",
             employee: !this.employee.includes("Any") ? this.employee : "1-10000000",
-        }
-        
-        );
-
+            category: this.category,
+            jobtitle: this.jobtitle,
+        });
         if (res.status == 'sucess') {
           if (res.data.length > 0) {
             this.last_id = res.data[res.data.length - 1].id;
@@ -725,6 +733,8 @@
             state:  this.state !== "All" ? this.state : "",
             city:  this.city !== "All" ? this.city : "",
             employee: !this.employee.includes("Any") ? this.employee : "1-10000000",
+            category: this.category,
+            jobtitle: this.jobtitle,
           },
         );
 
@@ -762,6 +772,8 @@
             state:  this.state !== "All" ? this.state : "",
             city:  this.city !== "All" ? this.city : "",
             employee: !this.employee.includes("Any") ? this.employee : "1-10000000",
+            category: this.category,
+            jobtitle: this.jobtitle,
           }
 
         const res = await this.$axios.$post(url, param);
@@ -793,6 +805,8 @@
             state:  this.state !== "All" ? this.state : "",
             city: this.city !== "All"  ? this.city : "",
             employee: !this.employee.includes("Any") ? this.employee : "1-10000000",
+            category: this.category,
+            jobtitle: this.jobtitle,
           }
 
         const res = await this.$axios.$post(url, param);
