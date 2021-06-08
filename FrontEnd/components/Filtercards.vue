@@ -29,7 +29,7 @@
                 </div>
                 <div class="employee-details-section">
                     <p  v-if="!flippedCards.includes(index)"  class="mb-0 emp-list-item"><span class="mdi mdi-account mr-2">
-                      </span> {{ company.job_level }}
+                      </span> {{ company.job_title }}
                     </p>
                     
                     <p  v-if="!flippedCards.includes(index)"  class="mb-0 emp-list-item">

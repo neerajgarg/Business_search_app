@@ -1226,6 +1226,11 @@
   .multiselect__input, .multiselect__single{
     border-radius: 8px !important;
     line-height: 24px;
+    /* padding: 0 0 0 32px; */
+  }
+  .country .multiselect__input,.country .multiselect__single{
+    border-radius: 8px !important;
+    line-height: 24px;
     padding: 0 0 0 32px;
   }
   .multiselect__content-wrapper{
