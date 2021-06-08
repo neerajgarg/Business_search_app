@@ -97,16 +97,17 @@ class Category(Resource):
 class JobTitle(Resource):
     def get(self):
         try: 
-            parser = reqparse.RequestParser()
-            parser.add_argument('query', type=str, location='args')
-            args = parser.parse_args(strict=True)
+            # parser = reqparse.RequestParser()
+            # parser.add_argument('query', type=str, location='args')
+            # args = parser.parse_args(strict=True)
             response = Mongodb.db.get_collection(Config.COMPANY_COLLS_NAME).distinct(
-                'JobTitle',
-                { 'JobTitle': re.compile(args['query'], re.IGNORECASE)}
+                key = 'JobTitle',
+                # { 'JobTitle': re.compile(args['query'], re.IGNORECASE)}
             )
             result = dict()
             result['status'] = 'success'
             result['Titles'] = list(response)
+            print(len(result['Titles']))
             return result, 200
         except Exception as e:
             result = dict()

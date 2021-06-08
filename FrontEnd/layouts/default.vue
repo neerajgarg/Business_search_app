@@ -86,9 +86,11 @@
                 <!-- asyncFindJobTitles -->
                 <!-- Job title -->
                 <div class="input-group custom-input-group mb-3 mag-icon-search">
+                <!-- @search-change="getJobTitles" -->
                 <multiselect
                     v-model="jobtitle"
-                    @search-change="getJobTitles"
+                    
+                    @search-change="asyncFindJobTitles" 
                     :options="jobtitles"
                     :multiple="false"
                     :close-on-select="true"
@@ -386,7 +388,7 @@
 
         jobtitle: '',
         jobtitles: [],
-        jobSearchSlotText: 'Start typing for suggestions',
+        jobSearchSlotText: 'Loading please Wait . . .',
 
         showModal: false,
         isSearching: false,
@@ -444,6 +446,7 @@
       this.updateValues();
       this.loadCountryGroups();
       this.loadCategories();
+      this.getJobTitles();
     },
     watch: {
       sliderVal(newVal) {
@@ -465,6 +468,7 @@
       },
       async asyncFindJobTitles(query){
         var filter= []
+        console.log(query.toLowerCase())
         await this.jobtitles.forEach(job=>{
           if(job.toLowerCase().startsWith(query.toLowerCase())){
             filter.push(job)
@@ -507,21 +511,8 @@
         }
       },
       async getJobTitles(query){
-        if(this.jobSearchSlotText != "Searching.. Please Wait..."){
-          this.jobSearchSlotText = "Continue Typing..."
-        }
-        if(query.length >= 4){
-          this.jobSearchSlotText = "Searching.. Please Wait..."
-          let res = await this.$axios.$get("/jobtitle?query="+query);
-          if(res.status == "success"){
-            this.jobtitles= res.Titles;
-            if(this.jobtitles.length == 0){
-              this.jobSearchSlotText = "No Results found, please refine your search query."
-            }
-          }else{
-            this.jobSearchSlotText ="error!!!"
-          }
-        }
+        let res = await this.$axios.$get("/jobtitle");
+        this.jobtitles= res.Titles;
       },
 
       async loadCountryGroups(){
