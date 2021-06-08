@@ -271,7 +271,7 @@
                   :preselect-first="true"
                   placeholder="Any"
                   :close-on-select="false"
-                  @input="search"
+                  @input="searchBySize"
                   :clear-on-select="false"
                   :preserve-search="true" >
 
@@ -292,7 +292,6 @@
                   </template>
                 </multiselect>
               </div>
-              <div class="form-group col-md-2"></div>
               <div class="form-group col-md-2 text-left">
                 <label for="inputPages">Records</label>
                 <!-- <select
@@ -316,9 +315,7 @@
                   @input="search"
                   :clear-on-select="false"
                   :preserve-search="true" >
-
-                  <template slot="selection"
-                            slot-scope="{ values, search, isOpen }">
+                  <template slot="selection" slot-scope="{ values, search, isOpen }">
                     <span class="multiselect__single" v-if="values.length">{{values.join(', ')}}</span>
                   </template>
                   <template slot="option" slot-scope="props">
@@ -340,7 +337,8 @@
 
       <!--  Card Section  -->
       <div v-if="isSearchDone" class="filter-cards-section" >
-        <Filtercards :companies="companies" />
+        <!-- <FilteredSearch :companies="companies" :size= "!this.employee.includes('Any')?this.employee.toString():'1-10000000'" /> -->
+        <Filtercards  :companies="companies"/>
       </div>
 
       <!--  Show More button  -->
@@ -372,6 +370,7 @@
   import Homeslider from '../components/homeSlider'
   import Filtersection from '../components/Filtersection'
   import Filtercards from '../components/Filtercards'
+  // import FilteredSearch from '../components/filteredSearch.vue'
   import constants from "../api/constants"
   import Multiselect from 'vue-multiselect'
   
