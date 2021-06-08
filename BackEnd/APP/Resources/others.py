@@ -94,19 +94,20 @@ class Category(Resource):
             result['description'] = str(e)
             return result, 500
 
+jobs = Mongodb.db.get_collection(Config.COMPANY_COLLS_NAME).distinct( key = 'JobTitle',)
+filter_list = []
+for job in jobs:
+    if(job):
+        if(job[0].isalpha()):
+            filter_list.append(job)
+jobs = filter_list
 class JobTitle(Resource):
     def get(self):
         try: 
-            # parser = reqparse.RequestParser()
-            # parser.add_argument('query', type=str, location='args')
-            # args = parser.parse_args(strict=True)
-            response = Mongodb.db.get_collection(Config.COMPANY_COLLS_NAME).distinct(
-                key = 'JobTitle',
-                # { 'JobTitle': re.compile(args['query'], re.IGNORECASE)}
-            )
             result = dict()
             result['status'] = 'success'
-            result['Titles'] = list(response)
+            result['Titles'] = jobs
+            # result['Titles'] = filter_list
             print(len(result['Titles']))
             return result, 200
         except Exception as e:
@@ -114,6 +115,7 @@ class JobTitle(Resource):
             result['status'] = 'failure'
             result['message'] = 'Internal Error'
             result['description'] = str(e)
+            print({"\nError\n",e})
             return result, 500
 
 class Keywords(Resource):

@@ -150,7 +150,8 @@ class Search(Resource):
                 {'$project': projection},
                 {'$match': {'score': {'$lte': scoring}}},
                 {'$skip': rows*(page-1) if page > 0 else 0},
-                {'$limit': args.get('limit', 20)}
+                {'$limit': args.get('limit', 20)},
+                
             ]
             # Update Keyword Collection for every Search
             Mongodb.Update(

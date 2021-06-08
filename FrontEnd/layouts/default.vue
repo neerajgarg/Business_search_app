@@ -66,6 +66,7 @@
                 </div>
 
                 <!-- Category -->
+                <!-- asyncFindCategories -->
                 <div class="input-group custom-input-group mb-3 mag-icon-search">
                   <multiselect
                     v-model="category"
@@ -76,7 +77,9 @@
                     :hideSelected="false"
                     :taggable="false"
                     placeholder="Category"
-                    :preserve-search="true" >
+                    :preserve-search="true"
+                    :internal-search="false"
+                    @search-change="asyncFindCategories" >
                     <template slot="selection" slot-scope="{ values, search, isOpen }">
                       <span class="multiselect__single" style="padding-left: 0px;" v-if="values.length">{{values[0]}}</span>
                     </template>
@@ -151,9 +154,9 @@
                   <a class="card-tab-btn" v-on:click="showCountry(selectedCountry)" :class="selectedCountryGroup == selectedCountry ? 'active' : ''" :key="index" v-for="selectedCountry, index in country_groups">{{selectedCountry}}</a>
                   <!-- <a class="card-tab-btn active">APAC</a> -->
                  <div id="show-city" class="show-city mt-3" v-if="isHidden == true">
-                      <!-- <div class="close-city">
+                      <div class="close-city">
                           <a class="btn-dark " v-on:click="isHidden = false">x</a>
-                      </div> -->
+                      </div>
                       <div class="city-list">
                           <a class="card-tab-btn " @click="removeCountry(city)" :key="index" v-for="city, index in countrylist">
                             {{city}} 
@@ -371,7 +374,7 @@
   import Filtercards from '../components/Filtercards'
   import constants from "../api/constants"
   import Multiselect from 'vue-multiselect'
-
+  
   var VueScrollTo = require("vue-scrollto");
   export default {
     components: {
@@ -385,9 +388,10 @@
       return {
         category : '',
         categories : [],
-
+        const_cat:[],
         jobtitle: '',
         jobtitles: [],
+        const_JT:[],
         jobSearchSlotText: 'Loading please Wait . . .',
 
         showModal: false,
@@ -466,10 +470,24 @@
       updateScroll() {
         this.scrollPosition = window.scrollY;
       },
+      async asyncFindCategories(query){
+        var filter= []
+        if(query!=""){
+          await this.const_cat.forEach(industry=>{
+            if(industry!=null && industry!=""){
+              if(industry.toLowerCase().startsWith(query.toLowerCase())){
+                filter.push(industry)
+              }
+            }
+          })
+          this.categories=filter
+        }
+        
+      },
       async asyncFindJobTitles(query){
         var filter= []
-        console.log(query.toLowerCase())
-        await this.jobtitles.forEach(job=>{
+        // console.log(query.toLowerCase())
+        await this.const_JT.forEach(job=>{
           if(job.toLowerCase().startsWith(query.toLowerCase())){
             filter.push(job)
           }
@@ -512,7 +530,18 @@
       },
       async getJobTitles(query){
         let res = await this.$axios.$get("/jobtitle");
+        // let filter =[]
+        // await res.Titles.forEach(job=>{
+        //   if(job!=null){
+        //     if((/[a-zA-Z]/).test(job.charAt(0))){
+        //       filter.push(job)
+        //     }
+        //   }
+        // })
+        // this.jobtitles= filter;
+        // this.const_JT = filter;
         this.jobtitles= res.Titles;
+        this.const_JT = res.Titles;
       },
 
       async loadCountryGroups(){
@@ -525,8 +554,19 @@
       async loadCategories(){
         const res = await this.$axios.$get("/category");
         if(res.status == "success"){
-          this.categories= res.Categories;
+            let filter =[]
+            await res.Categories.forEach(job=>{
+              if(job!=null){
+                if((/[a-zA-Z]/).test(job.charAt(0))){
+                  filter.push(job)
+                }
+              }
+            })
+            
+            this.categories= filter;
+          // this.categories= res.Categories;
         }
+        this.const_cat = res.Categories;
       },
       removeCountry(city){
           const index = this.country_selected.indexOf(city);
@@ -616,15 +656,43 @@
 
       async search() {
         //intial search filter to retrive the companies from the backend
+        console.log(this.selectedCountryGroup+"    "+this.selectedCountry)
+        let new_countryl=[]
+        if(this.country[0]){
+          await this.country.forEach(cont=>{
+              new_countryl.push(cont)
+          })
+        }
+        
+        const contrie1 = await this.$axios.$get("/group?country_group="+this.selectedCountryGroup[0]);
+        // if(this.countrylist[0]){
+        //   // console.log(this.countrylist)
+        //   await this.countrylist.forEach(cont=>{
+        //     console.log(cont)
+        //     new_countryl.push(cont)
+        //   })
+        // }
+        
+        if(contrie1.status == 'success'){
+          if(this.selectedCountryGroup[0]){
+              await contrie1.Countries.forEach(cont=>{
+                console.log(cont)
+                new_countryl.push(cont)
+              })
+            }
+        }
+        // this.country = new_countryl
         this.isSearchDone = true;
         this.isSearching = true;  
         this.page = 1;
         //search box parameters
+        console.log(new_countryl.length)
          let params = {
           score: this.sliderVal,
           keyword: this.keyword,
           search_type: this.type,
-          country: this.country !== "any" ? this.country : "",
+          // country: this.country !== "any" ? this.country : "",
+          country: new_countryl.length !=0 ? new_countryl:"",
           state:  this.state !== "All" ? this.state : "",
           city: this.city !== "All" ? this.city : "",
           employee: !this.employee.includes("Any") ? this.employee : "1-10000000",
