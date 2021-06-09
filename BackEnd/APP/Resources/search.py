@@ -43,16 +43,7 @@ class Search(Resource):
         
         if(args.get('keyword')!=""):
             filters.append({'text':{'path': path, 'query':args.get('keyword')}})
-        print ("\n\nfilters : ",filters,"\n\n")
-        # print(args.get('employee'))
-        # periods = args.get('employee').split(",")
-        # if(len(periods)!=0):
-        #     for period in periods:
-        #         print(period.split('-'))
-        #         start = period.split('-')[0]
-        #         end = period.split('-')[1]
-        #         # print(start,end)
-        #         match.append({ '$lte' : start , '$gte' : end})
+        print ("\nfilters : ",filters,"\n")
         print(match)
         return filters,match
     

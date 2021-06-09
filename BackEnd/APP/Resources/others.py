@@ -5,28 +5,30 @@ from APP import Mongodb
 from APP.config import Config
 
 class State(Resource):
-    def get(self):
-        parser = reqparse.RequestParser(bundle_errors=True)
-        parser.add_argument(name='country', location='args', type=str, dest='Country')
-        args = parser.parse_args(strict=True)
-        try:
-            filters = None
-            if args.get('Country') != "" and args.get('Country') != None:
-                filters = {'Country': args.get('Country')}
-            response = Mongodb.db.get_collection(Config.COUNTRY_COLLS).distinct(
-                key = 'State',
-                filter = filters
-            )
-            result = dict()
-            result['status'] = 'success'
-            result['data'] = list(response)
-            return result
-        except Exception as e:
-            result = dict()
-            result['status'] = 'failure'
-            result['message'] = 'Internal Error'
-            result['description'] = str(e)
-            return result, 500
+    # def get(self):
+    #     parser = reqparse.RequestParser(bundle_errors=True)
+    #     parser.add_argument(name='country', location='args', type=str, dest='Country')
+    #     args = parser.parse_args(strict=True)
+    #     try:
+    #         filters = None
+    #         if args.get('Country') != "" and args.get('Country') != None:
+    #             filters = {'Country': args.get('Country')}
+    #         print("States----GET\n",filters,args)
+    #         response = Mongodb.db.get_collection(Config.COUNTRY_COLLS).distinct(
+    #             key = 'State',
+    #             filter = filters
+    #         )
+    #         result = dict()
+    #         result['status'] = 'success'
+    #         result['data'] = list(response)
+    #         # print("GET_____-----",list(response))
+    #         return result
+    #     except Exception as e:
+    #         result = dict()
+    #         result['status'] = 'failure'
+    #         result['message'] = 'Internal Error'
+    #         result['description'] = str(e)
+    #         return result, 500
     
     def post(self):
         parser = reqparse.RequestParser(bundle_errors=True)
@@ -36,6 +38,8 @@ class State(Resource):
             filters = None
             if len(args.get('Country')) != 0:
                 filters = {'Country': {'$in': args.get('Country')}}
+            
+            print("States----POST\n",filters,args)
             response = Mongodb.db.get_collection(Config.COUNTRY_COLLS).distinct(
                 key = 'State',
                 filter = filters
@@ -43,6 +47,7 @@ class State(Resource):
             result = dict()
             result['status'] = 'success'
             result['data'] = list(response)
+            # print("POST_____-----",list(response))
             return result
         except Exception as e:
             result = dict()
@@ -52,17 +57,49 @@ class State(Resource):
             return result, 500
 
 class Cities(Resource):
-    def get(self):
+    # def get(self):
+        
+    #     parser = reqparse.RequestParser(bundle_errors=True)
+    #     # parser.add_argument(name='country', location='args', type=list, dest='Country')
+    #     parser.add_argument(name='country', location='args', type=list, dest='Country')
+    #     parser.add_argument(name='state', location='args', type=str, dest='State')
+    #     args = parser.parse_args(strict=True)
+        
+    #     try:
+    #         filters = None
+    #         print("CITIES----GET\n",filters,args)
+    #         if len(args.get('Country')) != 0:
+    #             filters = {'Country': {'$in': args.get('Country')}}
+    #         if args.get('State') != "" and args.get('State') != None:
+    #             filters['State'] = args.get('State')
+    #         print("\n",filters,args)
+    #         response =Mongodb.db.get_collection(Config.COUNTRY_COLLS).distinct( key = 'City', filter = filters )
+    #         result = dict()
+    #         result['status'] = 'success'
+    #         result['data'] = list(response)
+    #         return result
+    #     except Exception as e:
+    #         result = dict()
+    #         result['status'] = 'failure'
+    #         result['message'] = 'Internal Error'
+    #         result['description'] = str(e)
+    #         print(e)
+    #         return result, 500
+
+    def post(self):
         parser = reqparse.RequestParser(bundle_errors=True)
-        parser.add_argument(name='country', location='args', type=str, dest='Country')
-        parser.add_argument(name='state', location='args', type=str, dest='State')
+        parser.add_argument(name='country', location='json', type=list, dest='Country')
+        parser.add_argument(name='state', location='json', type=str, dest='State')
         args = parser.parse_args(strict=True)
         try:
             filters = dict()
-            if args.get('Country') != "" and args.get('Country') != None:
-                filters['Country'] = args.get('Country')
+            print("CITIES----POST\n",filters,args)
+            if(args.get('Country')):
+                if len(args.get('Country')) != 0:
+                    filters['Country'] = {'$in': args.get('Country')}
             if args.get('State') != "" and args.get('State') != None:
-                filters['State'] = args.get('State')
+                filters['State'] = {'$in': list({args.get('State')})}
+            print("\n",filters,args)
             response =Mongodb.db.get_collection(Config.COUNTRY_COLLS).distinct(
                 key = 'City',
                 filter = filters
@@ -70,12 +107,14 @@ class Cities(Resource):
             result = dict()
             result['status'] = 'success'
             result['data'] = list(response)
+            print(len(response))
             return result
         except Exception as e:
             result = dict()
             result['status'] = 'failure'
             result['message'] = 'Internal Error'
             result['description'] = str(e)
+            print(e)
             return result, 500
 class Category(Resource):
     def get(self):

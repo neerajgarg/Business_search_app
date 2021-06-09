@@ -428,7 +428,7 @@
         rpp:15,
         country: [],
         product:[],
-        
+        new_countryl:[],
         state: "All",
         city: "All",
         keyword: "",
@@ -547,7 +547,6 @@
           const res = await this.$axios.$get("/listgroups");
           if(res.status == "success"){
             this.country_groups= res.data;
-            console.log(res.data);
           }
       },
       async loadCategories(){
@@ -656,27 +655,17 @@
       async search() {
         //intial search filter to retrive the companies from the backend
         console.log(this.selectedCountryGroup+"    "+this.selectedCountry)
-        let new_countryl=[]
+        this.state = 'All'
         if(this.country[0]){
           await this.country.forEach(cont=>{
-              new_countryl.push(cont)
+              this.new_countryl.push(cont)
           })
         }
-        
         const contrie1 = await this.$axios.$get("/group?country_group="+this.selectedCountryGroup[0]);
-        // if(this.countrylist[0]){
-        //   // console.log(this.countrylist)
-        //   await this.countrylist.forEach(cont=>{
-        //     console.log(cont)
-        //     new_countryl.push(cont)
-        //   })
-        // }
-        
         if(contrie1.status == 'success'){
           if(this.selectedCountryGroup[0]){
               await contrie1.Countries.forEach(cont=>{
-                console.log(cont)
-                new_countryl.push(cont)
+                this.new_countryl.push(cont)
               })
             }
         }
@@ -685,13 +674,13 @@
         this.isSearching = true;  
         this.page = 1;
         //search box parameters
-        console.log(new_countryl.length)
+        console.log(this.new_countryl.length)
          let params = {
           score: this.sliderVal,
           keyword: this.keyword,
           search_type: this.type,
           // country: this.country !== "any" ? this.country : "",
-          country: new_countryl.length !=0 ? new_countryl:"",
+          country: this.new_countryl.length !=0 ? this.new_countryl:"",
           state:  this.state !== "All" ? this.state : "",
           city: this.city !== "All" ? this.city : "",
           employee: !this.employee.includes("Any") ? this.employee : "1-10000000",
@@ -709,7 +698,7 @@
           if (res.data.length > 0) {
             this.last_id = res.data[res.data.length - 1].id;
           }
-          this.companies = res.data;
+          this.companies = res.data.sort(this.compare);
         }
 
         //once the backend api response is recived user will be scrolled to a results
@@ -729,22 +718,28 @@
 
         //if the user input for the country is any then the subfilter of state and city will be filled with all the available cities and states
         if (this.country == "any") {
+          console.log("ALL STATES AND CITIES FETCHED")
           const states = await this.$axios.$post("/states");
-          const cities = await this.$axios.$get("/cities"); 
+          const cities = await this.$axios.$post("/cities"); 
           this.states = states.data;
           this.cities = cities.data;
         } 
         //if user has particular country then that countries sates and cities will be populated
         else {
           let params = { country: this.country };
+          console.log(params)
            this.$axios.$post("/states",  params ).then((response)=>{
-              this.states = response.data;
+            this.states = response.data;
           });
-          const cities = await this.$axios.$get("/cities",  params );
-          this.cities = cities.data;
+          this.$axios.$post("/cities",  params ).then((response)=>{
+            this.cities = response.data;
+          })
         }
         this.hasEqualSize = res.data.length == this.rpp ? true : false;
       },
+
+
+
       async searchBySize() {
         this.isSearching = true;
         this.removeFromSearch();
@@ -776,18 +771,22 @@
         this.isSearching = false;
       },
 
+
+
       async searchByState() {
         console.log('asfdadsf')
         this.isSearching = true;
         this.page = 1;
         this.removeFromSearch();
         let url = "/search?limit="+this.rpp+"&page="+this.page
+       
           const res = await this.$axios.$post(url, 
            {
             score: this.sliderVal,
             keyword: this.keyword,
             search_type: this.type,
-            country: this.country !== "any" ? this.country : "",
+            // country: this.country !== "any" ? this.country : "",
+            country: this.new_countryl.length !=0 ? this.new_countryl:"",
             state:  this.state !== "All" ? this.state : "",
             city:  this.city !== "All" ? this.city : "",
             employee: !this.employee.includes("Any") ? this.employee : "1-10000000",
@@ -802,12 +801,13 @@
           }
           this.companies = res.data.sort(this.compare);
         }
+        console.log(this.new_countryl)
+        let params = { state: this.state !== "any" ? this.state : "", country :this.new_countryl}
+        this.$axios.$post("/cities", params).then((response)=>{
+          this.cities = response.data;
+        })
 
-        const cities = await this.$axios.$get("/cities", {
-          params: { state: this.state !== "any" ? this.state : "" },
-        });
-
-        this.cities = cities.data;
+        
         this.cities.push("All");
 
         this.city = "All";
@@ -828,6 +828,7 @@
             keyword: this.keyword,
             search_type: this.type,
             state:  this.state !== "All" ? this.state : "",
+            country: this.new_countryl.length !=0 ? this.new_countryl:"",
             city:  this.city !== "All" ? this.city : "",
             employee: !this.employee.includes("Any") ? this.employee : "1-10000000",
             category: this.category,
