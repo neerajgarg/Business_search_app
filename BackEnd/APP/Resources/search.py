@@ -16,7 +16,7 @@ class Search(Resource):
         match = list()
         # Country filter
         if len(args.get('Country')) != 0:
-            filters.append({'text':{'path': 'Country', 'query':' OR '.join(args.get('Country'))}})
+            filters.append({'text':{'path': 'Country', 'query':args.get('Country'), 'score': {'boost': {'value': 5}}}})
 
         
         # State/Region filter
@@ -89,6 +89,7 @@ class Search(Resource):
                     'must': filters
                 }
             }
+            print(query)
             scoring, addon_score = self._scorecalculator(filters=query, score=args.get('score', 100))
             rows = args.get('limit')
             page = args.get('page')
@@ -110,6 +111,7 @@ class Search(Resource):
             response = Mongodb.Aggregation(
                 pipeline = pipeline
             )
+            
             output = list()
             for i in response:
                 i['score'] = int(i['score'] * addon_score)
