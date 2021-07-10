@@ -22,6 +22,7 @@ class Popular(Resource):
         parser.add_argument(name='keyword', location='args', type=str, required=True)
         parser.add_argument(name='Country', location='args', type=str, required=True)
         parser.add_argument(name='Industry', location='args', type=str, required=True)
+        
         parser.add_argument(name='JobTitle', location='args', type=str, required=True)
         args = parser.parse_args(strict=True)
         try:
